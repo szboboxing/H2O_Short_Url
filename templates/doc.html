@@ -1,0 +1,166 @@
+{%include './header.html' %}
+            <h3>生成</h3>
+            <h4>请求</h4>
+            <p id="generate_api_url_text"></p>
+            <p>方式: GET/POST</p>
+            <div class="mdui-table-fluid">
+                <table class="mdui-table mdui-table-hoverable">
+                    <thead>
+                        <tr>
+                            <th>参数名</th>
+                            <th>必填</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>domain</td>
+                            <td>是</td>
+                            <td>短网址的域名</td>
+                        </tr>
+
+                        <tr>
+                            <td>longUrl</td>
+                            <td>是</td>
+                            <td>长网址</td>
+                        </tr>
+
+                        <tr>
+                            <td>signature</td>
+                            <td>否</td>
+                            <td>特征码,仅能填1-5位的数字和字母</td>
+                        </tr>
+
+                        <tr>
+                            <td>validTime</td>
+                            <td>否</td>
+                            <td>有效期,单位天,仅能填0-365的数,0代表永久,默认为0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4>响应</h4>
+            <p>格式: JSON</p>
+            <div class="mdui-table-fluid">
+                <table class="mdui-table mdui-table-hoverable">
+                    <thead>
+                        <tr>
+                            <th>参数名</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>state</td>
+                            <td>状态码</td>
+                        </tr>
+
+                        <tr>
+                            <td>information</td>
+                            <td>信息</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>查询</h3>
+            <h4>请求</h4>
+            <p id="get_api_url_text"></p>
+            <p>方式: GET/POST</p>
+            <div class="mdui-table-fluid">
+                <table class="mdui-table mdui-table-hoverable">
+                    <thead>
+                        <tr>
+                            <th>参数名</th>
+                            <th>必填</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>type</td>
+                            <td>是</td>
+                            <td>类型,domain代表域名列表,url代表短网址信息</td>
+                        </tr>
+
+                        <tr>
+                            <td>shortUrl</td>
+                            <td>否</td>
+                            <td>短网址,当type为url时必填</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4>响应</h4>
+            <p>格式: JSON</p>
+            <h5>当type为domain时</h5>
+            <div class="mdui-table-fluid">
+                <table class="mdui-table mdui-table-hoverable">
+                    <thead>
+                        <tr>
+                            <th>参数名</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>state</td>
+                            <td>状态码</td>
+                        </tr>
+
+                        <tr>
+                            <td>information</td>
+                            <td>信息</td>
+                        </tr>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h5>当type为url时</h5>
+            <div class="mdui-table-fluid">
+                <table class="mdui-table mdui-table-hoverable">
+                    <thead>
+                        <tr>
+                            <th>参数名</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>state</td>
+                            <td>状态码</td>
+                        </tr>
+
+                        <tr>
+                            <td>information</td>
+                            <td>信息</td>
+                        </tr>
+
+                        <tr>
+                            <td>longUrl</td>
+                            <td>长网址</td>
+                        </tr>
+
+                        <tr>
+                            <td>validTime</td>
+                            <td>有效期</td>
+                        </tr>
+
+                        <tr>
+                            <td>count</td>
+                            <td>次数</td>
+                        </tr>
+
+                        <tr>
+                            <td>timestmap</td>
+                            <td>时间戳</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <script type="text/javascript">
+                document.getElementById('generate_api_url_text').innerHTML = '网址:' + window.location.origin + '/generate';
+                document.getElementById('get_api_url_text').innerHTML = '网址:' + window.location.origin + '/get';
+            </script>
+{%include './footer.html' %}

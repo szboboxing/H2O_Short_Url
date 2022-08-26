@@ -1,0 +1,39 @@
+        </div>
+        
+        <script type="text/javascript">
+            function nav_active(parent_id, child_id) {
+                let nav = document.getElementById(parent_id).children;
+                document.getElementById(child_id).className = 'mdui-ripple mdui-ripple-white mdui-tab-active';
+                Object.keys(nav).forEach(function(key){
+                    if (nav[key].id != child_id) {
+                        let single_nav = document.getElementById(nav[key].id);
+                        if (single_nav != null) {
+                            single_nav.className = 'mdui-ripple mdui-ripple-white';
+                        }
+                    }
+                });
+            }
+
+            function refresh_nav() {
+                nav_active('nav', window.location.pathname.split('/')[1]);
+            }
+
+            $(document).ready(function() {
+                refresh_nav();
+            });
+
+            $(document).pjax('a[target!=_blank]', {
+                container: '#container',
+                fragment: '#container',
+                timeout: 6000
+            }).on('pjax:start', function() {
+                NProgress.start();
+            }).on('pjax:success', function() {
+                mdui.mutation();
+                refresh_nav();
+            }).on('pjax:end', function() {
+                NProgress.done();
+            });
+        </script>
+    </body>
+</html>

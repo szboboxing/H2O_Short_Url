@@ -1,0 +1,109 @@
+{%include './header.html' %}
+            <form>
+                <p>域名</p>
+                <select id="domain" class="mdui-select"></select>
+
+                <div class="mdui-textfield mdui-textfield-floating-label">
+                    <label class="mdui-textfield-label">长网址</label>
+                    <input id="longUrl" class="mdui-textfield-input" type="text" required/>
+                </div>
+                
+                <div class="mdui-textfield mdui-textfield-floating-label">
+                    <label class="mdui-textfield-label">特征码</label>
+                    <input id="signature" class="mdui-textfield-input" type="text"/>
+                    <div class="mdui-textfield-helper">如需自定义请填写(仅能填1-5位的数字和字母)</div>
+                </div>
+
+                <div class="mdui-textfield mdui-textfield-floating-label">
+                    <label class="mdui-textfield-label">有效期</label>
+                    <input id="validTime" class="mdui-textfield-input" type="number" required/>
+                    <div class="mdui-textfield-helper">单位天,仅能填0-365的数,0代表永久,默认为0</div>
+                </div>
+                
+                <br/>
+                
+                <div class="mdui-row-xs-2">
+                    <div class="mdui-col">
+                        <button class="mdui-btn mdui-btn-raised mdui-btn-block" type="reset">重置</button>
+                    </div>
+
+                    <div class="mdui-col">
+                        <button id="submit" onclick="return summit()" class="mdui-btn mdui-btn-raised mdui-btn-block">生成</button>
+                    </div>
+                </div>
+            <form>
+            
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    let postData = {
+                        'type': 'domain',
+                    };
+                    axios.post('./api/get', postData)
+                        .then(function(response) {
+                            let data = response.data.information;
+                            let domain_element = new mdui.Select('#domain');
+                            for (let data_count = 0; data_count < data.length; data_count++) {
+                                $('#domain').append('<option>' + data[data_count] + '</option>');
+                            }
+                            domain_element.handleUpdate();
+                    });
+                });
+
+                function summit() {
+                    let load_element = load('正在生成');
+                    let domain = $('#domain option:selected').text();;
+                    let longUrl = $('#longUrl').val();
+                    let signature = $('#signature').val();
+                    let validTime = $('#validTime').val();
+                    
+                    if (!domain || !longUrl) {
+                        load_element.remove();
+
+                        mdui.alert('参数错误');
+                        
+                        return false;
+                    }
+
+                    if (!isUrl(longUrl)) {
+                        load_element.remove();
+                        
+                        mdui.alert('请输入完整长网址');
+                        
+                        return false;
+                    }
+
+                    let postData = {
+                        'domain': domain,
+                        'longUrl': longUrl,
+                        'signature': signature,
+                        'validTime': validTime
+                    };
+                    axios.post('./api/generate', postData)
+                        .then(function(response) {
+                            load_element.remove();
+                            let data = response.data.information;
+                            if (data.indexOf('https') == -1) {
+                                mdui.alert(data);
+                            } else {
+                                mdui.dialog({
+                                    content: '短链接:' + data,
+                                    buttons: [
+                                        {
+                                            text: '复制',
+                                            onClick: function(inst){
+                                                copyText(data);
+                                                mdui.snackbar({message: '复制成功'});
+                                            }
+                                        },
+                                        {
+                                            text: '确认',
+                                        }
+                                    ]
+                                });
+                            }
+                    });
+                    
+                    return false;
+                }
+            </script>
+{%include './footer.html' %}
