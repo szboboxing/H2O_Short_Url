@@ -7,13 +7,13 @@ import datetime
 
 PAGE_APP = Blueprint('PAGE_APP', __name__)
 
+@PAGE_APP.route('/generate', methods=['GET', 'POST'])
 @PAGE_APP.route('/', methods=['GET', 'POST'])
-@PAGE_APP.route('/index', methods=['GET', 'POST'])
-def index():
+def generate():
     db = database.DataBase()
     information = db.queryWebsiteInformation()
     return render_template(
-        'index.html',
+        'generate.html',
         title= information.get('title'),
         keyword=information.get('keyword'),
         description=information.get('description'),

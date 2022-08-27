@@ -3,6 +3,7 @@
 
 from flask import Blueprint, redirect, request
 from modular import core, auxiliary, database
+import time
 
 API_APP = Blueprint('API_APP', __name__)
 
@@ -12,18 +13,18 @@ def generate():
     domain = parameter.get('domain')
     longUrl = parameter.get('longUrl')
     signature = parameter.get('signature')
-    validTime = parameter.get('validTime')
+    validDay = parameter.get('validDay')
 
-    if auxiliary.emptyMany(domain, longUrl) or (auxiliary.empty(validTime) and validTime.isdigit()):
+    if auxiliary.emptyMany(domain, longUrl) or (auxiliary.empty(validDay) and validDay.isdigit()):
         return core.generateResponseResult('参数错误', 100)
     
     if not auxiliary.isUrl(longUrl):
         return core.generateResponseResult('长网址需完整', 200)
 
-    if auxiliary.empty(validTime):
-        validTime = 0
-    validTime = int(validTime)
-    if validTime < 0 or validTime > 365:
+    if auxiliary.empty(validDay):
+        validDay = 0
+    validDay = int(validDay)
+    if validDay < 0 or validDay > 365:
         return core.generateResponseResult('仅能填0-365的数,0代表永久')
     
     db = database.DataBase()
@@ -36,7 +37,7 @@ def generate():
         if query:
             return core.generateResponseResult(f'https://{domain}/{query.get("signature")}')
         
-        id_ = db.insert('system', domain, longUrl, validTime)
+        id_ = db.insert('system', domain, longUrl, validDay)
         signature = auxiliary.base62Encode(id_)
         if db.queryUrlBySignature(domain, signature):
             signature += 'a'
@@ -60,7 +61,7 @@ def generate():
         if db.queryUrlBySignature(domain, signature):
             return core.generateResponseResult('特征码已存在')
         
-        id_ = db.insert('custom', domain, longUrl, validTime)
+        id_ = db.insert('custom', domain, longUrl, validDay)
         db.update(id_, signature)
         return core.generateResponseResult(f'https://{domain}/{signature}')
 
@@ -115,6 +116,14 @@ def shortUrlRedirect(signature):
     
     query = db.queryUrlBySignature(request.host, signature)
     if query:
+        validDay = query.get('valid_day')
+        if validDay:
+            validDayTimestamp = validDay * 86400000
+            expireTimestmap = query.get('timestmap') + validDayTimestamp
+            if int(time.time()) > expireTimestmap:
+                db.delete(query.get('id'))
+                return redirect(request.host_url)
+        
         db.addCount(request.host, signature)
         return redirect(query.get('long_url'))
     return redirect(request.host_url)

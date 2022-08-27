@@ -15,7 +15,11 @@
             }
 
             function refresh_nav() {
-                nav_active('nav', window.location.pathname.split('/')[1]);
+                id = window.location.pathname.split('/')[1];
+                if (!id) {
+                    id = 'generate';
+                }
+                nav_active('nav', id);
             }
 
             $(document).ready(function() {
