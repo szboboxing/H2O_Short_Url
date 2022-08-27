@@ -20,18 +20,8 @@ class DataBase:
         self.prefix = config.get('prefix')
         self.connect = pymysql.connect(host=config.get('host'), port=config.get('port'), user=config.get('username'), passwd=config.get('password'), db=config.get('databaseName'))
         '''
-        config = {
-            'host': '121.4.52.251',
-            'port': 3306,
-            'username': 'h2o_short_url',
-            'password': '5XTHJm7y6PMdW6Eb',
-            'database_name': 'h2o_short_url',
-            'prefix': 'h2o_short_url_'
-        }
-        self.prefix = config.get('prefix')
-        self.connect = pymysql.connect(host=config.get('host'), port=config.get('port'), user=config.get('username'), passwd=config.get('password'), db=config.get('database_name'))
-        #self.prefix = os.environ.get('PREFIX')
-        #self.connect = pymysql.connect(host=os.environ.get('HOST'), port=int(os.environ.get('PORT')), user=os.environ.get('USERNAME'), passwd=os.environ.get('PASSWORD'), db=os.environ.get('DATABASE_NAME'))
+        self.prefix = os.environ.get('PREFIX')
+        self.connect = pymysql.connect(host=os.environ.get('HOST'), port=int(os.environ.get('PORT')), user=os.environ.get('USERNAME'), passwd=os.environ.get('PASSWORD'), db=os.environ.get('DATABASE_NAME'))
         self.cursor = self.connect.cursor(pymysql.cursors.DictCursor)
 
     def __del__(self):
