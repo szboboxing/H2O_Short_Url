@@ -15,36 +15,25 @@ def generate():
     signature = parameter.get('signature')
     validDay = parameter.get('validDay')
 
-    if auxiliary.emptyMany(domain, longUrl) or (auxiliary.empty(validDay) and validDay.isdigit()):
+    if not domain or not longUrl or (validDay and validDay.isdigit()):
         return core.generateResponseResult('参数错误', 100)
     
     if not auxiliary.isUrl(longUrl):
         return core.generateResponseResult('长网址需完整', 200)
 
-    if auxiliary.empty(validDay):
+    if validDay:
+        validDay = int(validDay)
+        if validDay < 0 or validDay > 365:
+            return core.generateResponseResult('仅能填0-365的数,0代表永久')
+    else:
         validDay = 0
-    validDay = int(validDay)
-    if validDay < 0 or validDay > 365:
-        return core.generateResponseResult('仅能填0-365的数,0代表永久')
     
     db = database.DataBase()
 
     if domain not in db.queryDomain():
         return core.generateResponseResult('域名不存在')
     
-    if auxiliary.empty(signature):
-        query = db.queryUrlByLongUrl(domain, longUrl)
-        if query:
-            return core.generateResponseResult(f'https://{domain}/{query.get("signature")}')
-        
-        id_ = db.insert('system', domain, longUrl, validDay)
-        signature = auxiliary.base62Encode(id_)
-        if db.queryUrlBySignature(domain, signature):
-            signature += 'a'
-            
-        db.update(id_, signature)
-        return core.generateResponseResult(f'https://{domain}/{signature}')
-    else:
+    if signature:
         if signature.lower() == 'api':
             return core.generateResponseResult('特征码不能为api')
         elif signature.lower() == 'index':
@@ -64,6 +53,18 @@ def generate():
         id_ = db.insert('custom', domain, longUrl, validDay)
         db.update(id_, signature)
         return core.generateResponseResult(f'https://{domain}/{signature}')
+    else:
+        query = db.queryUrlByLongUrl(domain, longUrl)
+        if query:
+            return core.generateResponseResult(f'https://{domain}/{query.get("signature")}')
+        
+        id_ = db.insert('system', domain, longUrl, validDay)
+        signature = auxiliary.base62Encode(id_)
+        if db.queryUrlBySignature(domain, signature):
+            signature += 'a'
+            
+        db.update(id_, signature)
+        return core.generateResponseResult(f'https://{domain}/{signature}')
 
 @API_APP.route('/api/get', methods=['GET', 'POST'])
 def get():
@@ -76,35 +77,35 @@ def get():
     if type_ == 'domain':
         db = database.DataBase()
         return core.generateResponseResult(db.queryDomain())
+    elif type_ == 'url':
+        shortUrl = parameter.get('shortUrl')
 
-    shortUrl = parameter.get('shortUrl')
+        if not shortUrl:
+            return core.generateResponseResult('参数错误', 100)
+        
+        if not auxiliary.isUrl(shortUrl):
+            return core.generateResponseResult('短网址需要完整', 200)
 
-    if auxiliary.empty(shortUrl):
-        return core.generateResponseResult('参数错误', 100)
-    
-    if not auxiliary.isUrl(shortUrl):
-        return core.generateResponseResult('短网址需要完整', 200)
+        shortUrl = shortUrl.split('/')
+        domain = shortUrl[2]
+        signature = shortUrl[3]
 
-    shortUrl = shortUrl.split('/')
-    domain = shortUrl[2]
-    signature = shortUrl[3]
+        db = database.DataBase()
 
-    db = database.DataBase()
+        if domain not in db.queryDomain():
+            return core.generateResponseResult('域名不存在')
 
-    if domain not in db.queryDomain():
-        return core.generateResponseResult('域名不存在')
-
-    query = db.queryUrlBySignature(domain, signature)
-    if not query:
-        return core.generateResponseResult('特征码不存在')
-    
-    information = {
-        'longUrl': query.get('long_url'),
-        'validTime': query.get('valid_time'),
-        'count': query.get('count'),
-        'timestmap': query.get('timestmap')
-    }
-    return core.generateResponseResult(information)
+        query = db.queryUrlBySignature(domain, signature)
+        if not query:
+            return core.generateResponseResult('特征码不存在')
+        
+        information = {
+            'longUrl': query.get('long_url'),
+            'validTime': query.get('valid_time'),
+            'count': query.get('count'),
+            'timestmap': query.get('timestmap')
+        }
+        return core.generateResponseResult(information)
 
 @API_APP.route('/<signature>', methods=['GET', 'POST'])
 @API_APP.route('/<signature>/', methods=['GET', 'POST'])

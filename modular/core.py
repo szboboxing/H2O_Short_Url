@@ -14,7 +14,7 @@ def getRequestParameter(request):
             data = request.get_json()
     return dict(data)
 
-def generateResponseResult(information, state=200):
+def generateResponseResult(state, information):
     data = {
         'state': state,
         'information': information
